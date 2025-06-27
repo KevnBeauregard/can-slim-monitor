@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watchlist CAN SLIM</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        h1 { color: #343a40; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { padding: 10px; border: 1px solid #dee2e6; text-align: center; }
+        th { background-color: #343a40; color: white; cursor: pointer; }
+        .green { background-color: #d4edda; }
+        .red { background-color: #f8d7da; }
+        .graph { width: 100px; }
+        input, select { margin: 5px; padding: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Watchlist CAN SLIM</h1>
+
+    {% if unstable %}
+        <p style="color: red; font-weight: bold;">⚠️ Marché instable — prudence recommandée.</p>
+    {% endif %}
+
+    <form action="/add" method="POST">
+        <input type="text" name="ticker" placeholder="Symbole" required>
+        <input type="number" step="0.01" name="buy_price" placeholder="Prix d'achat" required>
+        <button type="submit">Ajouter</button>
+    </form>
+
+    <div>
+        <label>Filtrer par score minimum:</label>
+        <input type="number" id="scoreFilter" min="0" max="6" value="0">
+
+        <label>Filtrer par secteur:</label>
+        <select id="sectorFilter">
+            <option value="">Tous</option>
+            {% for s in data|map(attribute="sector")|unique %}
+                {% if s %}<option value="{{ s }}">{{ s }}</option>{% endif %}
+            {% endfor %}
+        </select>
+
+        <button onclick="applyFilters()">Appliquer</button>
+        <button onclick="resetFilters()">Réinitialiser</button>
+    </div>
+
+    <table id="watchlistTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Symbole</th>
+                <th>Entreprise</th>
+                <th onclick="sortTable(2)">Prix</th>
+                <th onclick="sortTable(3)">Score</th>
+                <th>EPS</th>
+                <th onclick="sortTable(5)">Volume</th>
+                <th onclick="sortTable(6)">Capitalisation</th>
+                <th>Graphique</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in data %}
+            <tr data-score="{{ stock.score }}" data-sector="{{ stock.sector }}" class="{{ 'green' if stock.score >= 5 else 'red' if stock.score <= 2 else '' }}">
+                <td><a href="/stock/{{ stock.ticker }}"><strong>{{ stock.ticker }}</strong></a></td>
+                <td>{{ stock.company }}</td>
+                <td>{{ stock.price }}</td>
+                <td>{{ stock.score }}/6</td>
+                <td>{{ stock.eps }}</td>
+                <td>{{ "{:,}".format(stock.volume) }}</td>
+                <td>{{ "{:,}".format(stock.marketCap) }}</td>
+                <td><img src="{{ stock.graph_url }}" class="graph"></td>
+                <td><a href="/delete/{{ stock.ticker }}">❌</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<script>
+function applyFilters() {
+    const scoreMin = parseInt(document.getElementById("scoreFilter").value) || 0;
+    const sectorVal = document.getElementById("sectorFilter").value;
+
+    const rows = document.querySelectorAll("#watchlistTable tbody tr");
+    rows.forEach(row => {
+        const score = parseInt(row.dataset.score);
+        const sector = row.dataset.sector;
+        const match = score >= scoreMin && (sectorVal === "" || sector === sectorVal);
+        row.style.display = match ? "" : "none";
+    });
+}
+
+function resetFilters() {
+    document.getElementById("scoreFilter").value = 0;
+    document.getElementById("sectorFilter").value = "";
+    applyFilters();
+}
+
+function sortTable(colIndex) {
+    const table = document.getElementById("watchlistTable");
+    const rows = Array.from(table.rows).slice(1);
+    const sorted = rows.sort((a, b) => {
+        const aVal = a.cells[colIndex].innerText.replace(/[^0-9.-]+/g,"");
+        const bVal = b.cells[colIndex].innerText.replace(/[^0-9.-]+/g,"");
+        return parseFloat(aVal) - parseFloat(bVal);
+    });
+    sorted.forEach(row => table.appendChild(row));
+}
+</script>
+
+</body>
+</html>

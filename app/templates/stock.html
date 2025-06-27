@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Détail - {{ ticker }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        h1 { color: #343a40; }
+        table { width: 60%; border-collapse: collapse; background: #fff; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #dee2e6; text-align: left; }
+        th { background-color: #343a40; color: white; width: 30%; }
+        .graph { max-width: 100%; margin-top: 20px; }
+        a { text-decoration: none; color: blue; }
+    </style>
+</head>
+<body>
+
+    <a href="/">← Retour à la watchlist</a>
+    <h1>Détails pour {{ info.shortName }} ({{ ticker }})</h1>
+
+    <table>
+        <tr><th>Prix actuel</th><td>{{ info.regularMarketPrice }}</td></tr>
+        <tr><th>Sector</th><td>{{ info.sector }}</td></tr>
+        <tr><th>Industry</th><td>{{ info.industry }}</td></tr>
+        <tr><th>Capitalisation</th><td>{{ "{:,}".format(info.marketCap) }}</td></tr>
+        <tr><th>EPS (TTM)</th><td>{{ info.trailingEps }}</td></tr>
+        <tr><th>PER (TTM)</th><td>{{ info.trailingPE }}</td></tr>
+        <tr><th>PEG Ratio</th><td>{{ info.pegRatio }}</td></tr>
+        <tr><th>ROE (%)</th><td>{{ info.returnOnEquity * 100 if info.returnOnEquity else "N/A" }}</td></tr>
+        <tr><th>ROA (%)</th><td>{{ info.returnOnAssets * 100 if info.returnOnAssets else "N/A" }}</td></tr>
+        <tr><th>Score CAN SLIM</th><td>{{ score }}/6</td></tr>
+    </table>
+
+    <h3>Graphique (14 jours)</h3>
+    <img class="graph" src="{{ graph_url }}" alt="Graphique de {{ ticker }}">
+
+</body>
+</html>
