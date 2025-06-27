@@ -1,5 +1,9 @@
 import sys
 import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'core'))
+
+import sys
+import os
 import time
 import threading
 import logging
