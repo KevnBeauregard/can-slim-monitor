@@ -1,9 +1,9 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'core'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'can_slim_worker_final/core'))
 
-import sys
-import os
+from core.config import LOOP_INTERVAL_SECONDS
+
 import time
 import threading
 import logging
